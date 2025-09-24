@@ -1569,7 +1569,7 @@ async def gates_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         access_text = "❌ SOLO VISTA PREVIA"
         status_section = "[!] ACCESO A FUNCIONES DENEGADO\n[!] VISUALIZACIÓN TEMPORAL ACTIVADA"
         modules_status = "🔒"
-        final_message = "➤ Desbloquea acceso total:\n    ↳ PREMIUM ACTIVATION: @SteveCHBll"
+        final_message = "➤ Desbloquea acceso total:\n    ↳ PREMIUM ACTIVATION: @Laleyendas01"
 
     # Plantilla unificada para todos los usuarios
     response = f"┏━━━━━━━━━━━━━━━┓\n"
@@ -1704,7 +1704,7 @@ async def handle_gate_callback(update: Update, context: ContextTypes.DEFAULT_TYP
             access_text = "❌ SOLO VISTA PREVIA"
             status_section = "[!] ACCESO A FUNCIONES DENEGADO\n[!] VISUALIZACIÓN TEMPORAL ACTIVADA"
             modules_status = "🔒"
-            final_message = "➤ Desbloquea acceso total:\n    ↳ PREMIUM ACTIVATION: @SteveCHBll"
+            final_message = "➤ Desbloquea acceso total:\n    ↳ PREMIUM ACTIVATION: @Laleyendas01"
 
         # Plantilla unificada
         response = f"┏━━━━━━━━━━━━━━━┓\n"
@@ -1775,7 +1775,7 @@ async def handle_gate_callback(update: Update, context: ContextTypes.DEFAULT_TYP
                 "📦 Multi-Card Process\n"
                 "♾ Sin Límite de Uso\n"
                 "━━━━━━━━━━━━━━━━━━━━\n"
-                "📩 CONTACT ADMIN: @SteveCHBll\n"
+                "📩 CONTACT ADMIN: @Laleyendas01\n"
                 "━━━━━━━━━━━━━━━━━━━━")
             return
 
