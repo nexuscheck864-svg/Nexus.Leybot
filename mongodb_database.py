@@ -299,15 +299,38 @@ class MongoDatabase:
     def is_founder(self, user_id: str) -> bool:
         """Verificar si es fundador por user_id"""
         try:
-            if not self.connection_status:
-                return False
-
-            founder = self.collections['founders'].find_one({"user_id": user_id})
-            return founder is not None
+            # Importar ADMIN_IDS desde telegram_bot si no está disponible
+            try:
+                from telegram_bot import ADMIN_IDS
+                # Verificar primero si está en ADMIN_IDS (respaldo)
+                if int(user_id) in ADMIN_IDS:
+                    # Auto-registrar en la base de datos si no existe
+                    try:
+                        if self.connection_status:
+                            existing = self.collections['founders'].find_one({"user_id": user_id})
+                            if not existing:
+                                self.add_founder(user_id, "ADMIN_IDS_AUTO", "Auto", "Admin")
+                    except:
+                        pass  # No importa si falla el auto-registro
+                    return True
+            except (ImportError, ValueError):
+                pass  # ADMIN_IDS no disponible o user_id no es número
+            
+            # Verificar en la base de datos
+            if self.connection_status:
+                founder = self.collections['founders'].find_one({"user_id": user_id})
+                return founder is not None
+                
+            return False
 
         except Exception as e:
             logger.error(f"Error verificando fundador {user_id}: {e}")
-            return False
+            # Como último recurso, verificar ADMIN_IDS
+            try:
+                from telegram_bot import ADMIN_IDS
+                return int(user_id) in ADMIN_IDS
+            except:
+                return False
             
     def is_founder_by_name(self, name: str) -> bool:
         """Verificar si es fundador por nombre"""
@@ -480,11 +503,27 @@ class MongoDatabase:
     def is_cofounder(self, user_id: str) -> bool:
         """Verificar si el usuario es co-fundador por user_id"""
         try:
-            if not self.connection_status:
-                return False
-
-            staff = self.collections['staff'].find_one({"user_id": user_id, "role": "2"})
-            return staff is not None
+            # Verificar primero si está en ADMIN_IDS (podrían ser co-fundadores también)
+            try:
+                from telegram_bot import ADMIN_IDS
+                if int(user_id) in ADMIN_IDS:
+                    # Verificar si ya está registrado como fundador primero
+                    if self.connection_status:
+                        founder_check = self.collections['founders'].find_one({"user_id": user_id})
+                        if founder_check:
+                            return False  # Es fundador, no co-fundador
+                        # Verificar en staff
+                        staff = self.collections['staff'].find_one({"user_id": user_id, "role": "2"})
+                        return staff is not None
+            except (ImportError, ValueError):
+                pass
+            
+            # Verificar en la base de datos
+            if self.connection_status:
+                staff = self.collections['staff'].find_one({"user_id": user_id, "role": "2"})
+                return staff is not None
+                
+            return False
 
         except Exception as e:
             logger.error(f"Error verificando co-fundador {user_id}: {e}")
@@ -515,11 +554,30 @@ class MongoDatabase:
     def is_moderator(self, user_id: str) -> bool:
         """Verificar si el usuario es moderador por user_id"""
         try:
-            if not self.connection_status:
-                return False
-
-            staff = self.collections['staff'].find_one({"user_id": user_id, "role": "3"})
-            return staff is not None
+            # Verificar primero si está en ADMIN_IDS
+            try:
+                from telegram_bot import ADMIN_IDS
+                if int(user_id) in ADMIN_IDS:
+                    # Verificar si ya está registrado como fundador o co-fundador primero
+                    if self.connection_status:
+                        founder_check = self.collections['founders'].find_one({"user_id": user_id})
+                        if founder_check:
+                            return False  # Es fundador, no moderador
+                        cofounder_check = self.collections['staff'].find_one({"user_id": user_id, "role": "2"})
+                        if cofounder_check:
+                            return False  # Es co-fundador, no moderador
+                        # Verificar si es moderador
+                        staff = self.collections['staff'].find_one({"user_id": user_id, "role": "3"})
+                        return staff is not None
+            except (ImportError, ValueError):
+                pass
+            
+            # Verificar en la base de datos
+            if self.connection_status:
+                staff = self.collections['staff'].find_one({"user_id": user_id, "role": "3"})
+                return staff is not None
+                
+            return False
 
         except Exception as e:
             logger.error(f"Error verificando moderador {user_id}: {e}")
