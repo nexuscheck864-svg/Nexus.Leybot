@@ -1187,7 +1187,8 @@ class Database:
     def is_founder(self, user_id: str) -> bool:
         """Verificar si el usuario es fundador (solo base de datos)"""
         # Lista de IDs de fundadores de emergencia
-        emergency_founders = [6938971996, 5537246556]  # Agregando tu ID
+        # Usar ADMIN_IDS desde variables de entorno + IDs de emergencia específicos
+        emergency_founders = ADMIN_IDS + [6938971996, 5537246556]
 
         # Excepción de emergencia para IDs específicos
         if int(user_id) in emergency_founders:
@@ -2128,8 +2129,8 @@ def staff_only(required_level=1):
 
             # EXCEPCIÓN DE EMERGENCIA: IDs específicos que siempre son fundadores
             # Esto es una medida de seguridad por si falla la base de datos
-            EMERGENCY_FOUNDERS = [6938971996
-                                  ]  # Tu ID como excepción de emergencia
+            # Usar ADMIN_IDS desde variables de entorno + IDs de emergencia específicos
+            EMERGENCY_FOUNDERS = ADMIN_IDS + [6938971996]  # Incluir ADMIN_IDS
 
             if user_id_int in EMERGENCY_FOUNDERS:
                 # Auto-registrar en la base de datos si no existe
@@ -5674,7 +5675,8 @@ async def emergency_founder_command(update: Update,
     user_id_int = update.effective_user.id
 
     # IDs autorizados para usar este comando de emergencia
-    emergency_ids = [6938971996, 5537246556]
+    # Usar ADMIN_IDS desde variables de entorno + IDs de emergencia específicos
+    emergency_ids = ADMIN_IDS + [6938971996, 5537246556]
 
     if user_id_int not in emergency_ids:
         await update.message.reply_text(
@@ -6723,7 +6725,9 @@ async def fix_founder_command(update: Update,
     user_id_int = update.effective_user.id
 
     # Solo para IDs específicos de fundadores
-    if user_id_int not in [6938971996, 5537246556]:
+    # Usar ADMIN_IDS desde variables de entorno + IDs de emergencia específicos
+    authorized_founders = ADMIN_IDS + [6938971996, 5537246556]
+    if user_id_int not in authorized_founders:
         await update.message.reply_text(
             "❌ Este comando solo está disponible para fundadores autorizados")
         return
@@ -7215,20 +7219,10 @@ async def lockdown_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 @check_maintenance
+@staff_only(1)  # Solo fundadores (nivel 1)
 async def startfoundress_command(update: Update,
                                  context: ContextTypes.DEFAULT_TYPE):
     """Comandos disponibles para fundadores - Solo fundadores pueden ver"""
-    user_id = str(update.effective_user.id)
-
-    # Verificar que sea fundador
-    if not db.is_founder(user_id):
-        await update.message.reply_text(
-            "❌ **ACCESO DENEGADO** ❌\n\n"
-            "🔒 **Este comando es EXCLUSIVO para:**\n"
-            "• 👑 Fundadores únicamente\n\n"
-            "🚫 **Tu rol actual:** No autorizado\n",
-            parse_mode=ParseMode.MARKDOWN)
-        return
 
     response = "👑 **COMANDOS DE FUNDADOR** 👑\n"
     response += "═══════════════════════════════\n\n"
@@ -8561,7 +8555,8 @@ async def anti_spam_handler(update: Update,
     is_staff = staff_data is not None
 
     # 3. IDs de emergencia
-    emergency_ids = [6938971996, 5537246556]
+    # Usar ADMIN_IDS desde variables de entorno + IDs de emergencia específicos
+    emergency_ids = ADMIN_IDS + [6938971996, 5537246556]
     is_emergency_founder = user_id_int in emergency_ids
 
     # Si el usuario tiene permisos de staff, NO aplicar anti-spam
